@@ -22,12 +22,16 @@ function x = loadImage()
     imshow(x);
 endfunction
 
+function saveImage(x)
+    ret = imwrite(x, "modif.png");
+endfunction
+
 function hist = histogramme(x)
-    [nc, nl] = size(x);
+    [nl, nc] = size(x);
     hist = zeros([1:256]);
 
-    for i = 1:nc
-        for j = 1:nl
+    for i = 1:nl
+        for j = 1:nc
             //val = x(i,j);
             //hist(val) = hist(val)+1;
             //disp("i= " + string(i) + "j = " + string(j) + "x(i, j) = " + string(x(i,j)));
@@ -41,23 +45,32 @@ function hist = histogramme(x)
 endfunction
 
 function [maxi, mini] = dynamique(hist)
-    mini = 256;
-    maxi = 0;
+    maxi = 0
+    mini = 0
     for i = 1:256
-        if hist(i) < mini
+        if hist(i) ~= 0 then
             mini = i;
+            disp(string(hist(i)) + " " + string(i))
+            break
+        end;
+    end
+    for j = 256:-1:1
+        if hist(j) ~= 0 then
+            maxi = j;
+            disp(string(hist(j)) + " " + string(i))
+            break
         end;
     end
     disp("maxi " + string(maxi) + " mini " + string(mini))
 endfunction
 
 function luminance(x)
-    [nc, nl] = size(x);
+    [nl, nc] = size(x);
     newX = x;
-    lumi = -50;
+    lumi = -100;
     disp("lumi " + string(lumi));
-    for i = 1:nc
-        for j = 1:nl
+    for i = 1:nl
+        for j = 1:nc
             if lumi > 0 // On va vers 255
                 if newX(i, j) < 255 - lumi
                     newX(i, j) = newX(i, j) + lumi;
@@ -75,20 +88,24 @@ function luminance(x)
         end;
     end
     imshow(newX);
+    saveImage(newX);
 endfunction
+ 
 
-function moy = moyenne(x)
-    [nc, nl] = size(x); 
-    moy = 0;
-    for i = 1:nc
-        for j = 1:nl
-            moy = moy + x(i, j);
+function contraste(x)
+    [nl, nc] = size(x)
+    disp(string(nl) + " " + string(nc))
+    hist = histogramme(x)
+    [maxi, mini] = dynamique(hist)
+    
+    for ng = 1 : 256
+        lut(ng) = (256*(ng - mini))/(maxi - mini)
+    end;
+    
+    for i = 1:nl
+        for j = 1 : nc
+            x2(i, j) = lut(x(i,j))
         end;
     end
-    n = nl * nc;
-    //disp(n);
-    disp(moy);
-    moy = moy / n
-    
+    imshow(x2);
 endfunction
-
