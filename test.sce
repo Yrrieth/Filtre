@@ -22,8 +22,8 @@ function x = loadImage()
     imshow(x);
 endfunction
 
-function saveImage(x)
-    ret = imwrite(x, "modif.png");
+function saveImage(x, nomFichier)
+    ret = imwrite(x, nomFichier);
 endfunction
 
 function hist = histogramme(x)
@@ -88,24 +88,32 @@ function luminance(x)
         end;
     end
     imshow(newX);
-    saveImage(newX);
+    saveImage(newX, "luminance.png");
 endfunction
  
 
 function contraste(x)
-    [nl, nc] = size(x)
-    disp(string(nl) + " " + string(nc))
-    hist = histogramme(x)
-    [maxi, mini] = dynamique(hist)
+    [nl, nc] = size(x);
+    x2 = x
+    hist = histogramme(x);
+    [maxi, mini] = dynamique(hist);
     
     for ng = 1 : 256
-        lut(ng) = (256*(ng - mini))/(maxi - mini)
+        lut(ng) = (255*(ng - mini))/(maxi - mini)
     end;
     
     for i = 1:nl
         for j = 1 : nc
-            x2(i, j) = lut(x(i,j))
+            //disp(string(lut(x(i, j))) + " i : " + string(i) + " j : " + string(j))
+            if x(i,j) == 0
+                x2(i, j) = lut(1)
+            else
+                x2(i, j) = lut(x(i,j))
+            end;
+            //disp(x2(i, j))
         end;
     end
     imshow(x2);
+    saveImage(x2, "contraste.png")
 endfunction
+
