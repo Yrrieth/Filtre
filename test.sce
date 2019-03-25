@@ -126,7 +126,7 @@ function negatif(x)
     saveImage(newX, "negatif.png");
 endfunction
 
-function egalisation(x)
+function egalisationNB(x)
     [nl, nc] = size(x);
     newX = x; 
     hist = histogramme(x);
@@ -139,13 +139,31 @@ function egalisation(x)
     for i = 1:nl
         for j = 1:nc
             if x(i,j) == 0
-                newX(i, j) = (histCumule() * 255) / (nl * nc);
+                newX(i, j) = (histCumule() * 255) / length(x);
             else
-                newX(i, j) = (histCumule(x(i, j)) * 255) / (nl * nc);
+                newX(i, j) = (histCumule(x(i, j)) * 255) / length(x);
             end;
         end;
     end
     
     imshow(newX);
-    saveImage(newX, "egalisation.png");
+    saveImage(newX, "egalisationNB.png");
+endfunction
+
+function grisR(x)
+    r = x(:,:,1);
+    imshow(r);
+    saveImage(r, "grisR.png");
+endfunction
+
+function grisV(x)
+    v = x(:,:,2);
+    imshow(v);
+    saveImage(v, "grisV.png");
+endfunction
+
+function grisB(x)
+    b = x(:,:,3);
+    imshow(b);
+    saveImage(b, "grisB.png");
 endfunction
