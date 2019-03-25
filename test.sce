@@ -32,9 +32,6 @@ function hist = histogramme(x)
 
     for i = 1:nl
         for j = 1:nc
-            //val = x(i,j);
-            //hist(val) = hist(val)+1;
-            //disp("i= " + string(i) + "j = " + string(j) + "x(i, j) = " + string(x(i,j)));
             if x(i, j) == 255 then 
                 hist(256) = hist(256) + 1;
             else    
@@ -68,7 +65,7 @@ function luminance(x)
     [nl, nc] = size(x);
     newX = x;
     lumi = -100;
-    disp("lumi " + string(lumi));
+    //disp("lumi " + string(lumi));
     for i = 1:nl
         for j = 1:nc
             if lumi > 0 // On va vers 255
@@ -129,4 +126,26 @@ function negatif(x)
     saveImage(newX, "negatif.png");
 endfunction
 
-
+function egalisation(x)
+    [nl, nc] = size(x);
+    newX = x; 
+    hist = histogramme(x);
+    histCumule = zeros([1:256]);
+    
+    for i = 1:256
+        histCumule(i + 1) = histCumule(i) + hist(i);
+    end
+    
+    for i = 1:nl
+        for j = 1:nc
+            if x(i,j) == 0
+                newX(i, j) = (histCumule() * 255) / (nl * nc);
+            else
+                newX(i, j) = (histCumule(x(i, j)) * 255) / (nl * nc);
+            end;
+        end;
+    end
+    
+    imshow(newX);
+    saveImage(newX, "egalisation.png");
+endfunction
