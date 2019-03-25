@@ -117,3 +117,16 @@ function contraste(x)
     saveImage(x2, "contraste.png")
 endfunction
 
+function negatif(x)
+    [nl, nc] = size(x);
+    newX = x;
+    for i = 1:nl
+        for j = 1:nc
+            newX(i, j) = 255 - newX(i, j)
+        end;
+    end
+    imshow(newX);
+    saveImage(newX, "negatif.png");
+endfunction
+
+
