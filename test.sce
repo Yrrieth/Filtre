@@ -167,3 +167,19 @@ function grisB(x)
     imshow(b);
     saveImage(b, "grisB.png");
 endfunction
+
+function seuillage(x)
+    [nl, nc] = size(x);
+    seuil = 128;
+    for i = 1:nl
+        for j = 1:nc
+           if x(i, j) > seuil
+               x(i, j) = 255;
+           else
+               x(i, j) = 0;
+           end;
+        end
+    end
+    imshow(x);
+    saveImage(b, "seuil.png");
+endfunction
