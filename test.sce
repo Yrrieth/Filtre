@@ -1,21 +1,5 @@
 clear;
-f = scf(0);
-f0 = figure(0);
-test = uicontrol(f0, "style", "text", ...
-    "string", "Ceci est une figure", ...
-    "position", [10 350 100 100]);
-scene = uicontrol(f0, "style", "text", ...
-    "string", "Ceci est une figure qui sera la scene", ...
-    "position", [200 25 400 400]);
 
-button1 = uicontrol("style", "pushbutton", ...
-          "string", "Choose a file", ...
-          "position", [10, 100, 150, 100], ...
-          "callback", "x = loadImage();" + ...
-                      "hist = histogramme(x);" + ...
-                      "luminance(x, hist);");
-                
-                      
 function x = loadImage() 
     myFile = uigetfile();
     x = imread(myFile);
@@ -181,5 +165,50 @@ function seuillage(x)
         end
     end
     imshow(x);
-    saveImage(b, "seuil.png");
+    saveImage(x, "seuil.png");
+endfunction
+
+function passeBas(x)
+    [nl, nc] = size(x);
+    noyau = 3;
+    for i = 1:nl
+        for j = 1:nc
+            i_tmp = i;
+            j_tmp = j;
+            moy = 0;
+            if i <= (noyau - 1) / 2
+                i_start = 1;
+            else
+                i_start = i - ((noyau - 1) / 2);
+            end;
+            if i >= nl - ((noyau - 1) / 2)
+                i_end = nl;
+            else
+                i_end = i + ((noyau - 1) / 2);
+            end;
+            if j <= ((noyau - 1) / 2)
+                j_start = 1;
+            else
+                j_start = j - ((noyau - 1) / 2);
+            end;
+            if j >= nc - ((noyau - 1) / 2)
+                j_end = nc;
+            else
+                j_end = j + ((noyau - 1) / 2);
+            end;
+            //disp("i_start = " + string(i_start) + " j_start = " + string(j_start));
+            //disp("i_end = " + string(i_end) + " j_end = " + string(j_end));
+            for i_noy = i_start:i_end
+                for j_noy = j_start:j_end
+                    moy = moy + x(i_noy, j_noy);
+                end;
+            end;
+            i = i_tmp;
+            j = j_tmp;
+            moy = moy / 9;
+            x(i, j) = moy;    
+        end;
+    end
+    imshow(x);
+    saveImage(x, "passeBas.png");
 endfunction
