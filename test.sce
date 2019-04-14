@@ -47,37 +47,70 @@ endfunction
 
 function luminance(x)
     [nl, nc] = size(x);
+    // Sert à mettre en niveau de gris les images colorées
+    if nl * nc ~= length(x) then
+        //x = rgb2gray(x);
+        couleur = 1
+    else
+        couleur = 0
+    end
     newX = x;
     lumi = -100;
+    
     //disp("lumi " + string(lumi));
     for i = 1:nl
         for j = 1:nc
-            if lumi > 0 // On va vers 255
-                if newX(i, j) < 255 - lumi
-                    newX(i, j) = newX(i, j) + lumi;
-                
-                else
-                    newX(i, j) = 255;
+            // Si l'image est en couleur
+            if couleur == 1 then
+                for k = 1:3
+                    if lumi > 0 // On va vers 255
+                        if newX(i, j, k) < 255 - lumi
+                            newX(i, j, k) = newX(i, j) + lumi;
+                        
+                        else
+                            newX(i, j, k) = 255;
+                        end;
+                    else        // On va vers 0
+                        if newX(i, j, k) > 0 - lumi
+                            newX(i, j, k) = newX(i, j) + lumi;
+                        else
+                            newX(i, j, k) = 0;
+                       end;
+                    end;
                 end;
-            else        // On va vers 0
-                if newX(i, j) > 0 - lumi
-                    newX(i, j) = newX(i, j) + lumi;
-                else
-                    newX(i, j) = 0;
-               end;
+                
+            else  // Sinon, l'image est en noir et blanc
+            
+                if lumi > 0 // On va vers 255
+                    if newX(i, j) < 255 - lumi
+                        newX(i, j) = newX(i, j) + lumi;
+                    
+                    else
+                        newX(i, j) = 255;
+                    end;
+                else        // On va vers 0
+                    if newX(i, j) > 0 - lumi
+                        newX(i, j) = newX(i, j) + lumi;
+                    else
+                        newX(i, j) = 0;
+                   end;
+                end;
             end;
         end;
     end
     imshow(newX);
     saveImage(newX, "luminance.png");
 endfunction
- 
 
 function contraste(x)
     [nl, nc] = size(x);
     x2 = x
     hist = histogramme(x);
     [maxi, mini] = dynamique(hist);
+    // Sert à mettre en niveau de gris les images colorées
+    if nl * nc ~= length(x) then
+        x = rgb2gray(x);
+    end
     
     for ng = 1 : 256
         lut(ng) = (255*(ng - mini))/(maxi - mini)
@@ -101,6 +134,11 @@ endfunction
 function negatif(x)
     [nl, nc] = size(x);
     newX = x;
+    // Sert à mettre en niveau de gris les images colorées
+    if nl * nc ~= length(x) then
+        x = rgb2gray(x);
+    end
+    
     for i = 1:nl
         for j = 1:nc
             newX(i, j) = 255 - newX(i, j)
@@ -115,6 +153,10 @@ function egalisationNB(x)
     newX = x; 
     hist = histogramme(x);
     histCumule = zeros([1:256]);
+    // Sert à mettre en niveau de gris les images colorées
+    if nl * nc ~= length(x) then
+        x = rgb2gray(x);
+    end
     
     for i = 1:256
         histCumule(i + 1) = histCumule(i) + hist(i);
@@ -155,6 +197,11 @@ endfunction
 function seuillage(x)
     [nl, nc] = size(x);
     seuil = 128;
+    // Sert à mettre en niveau de gris les images colorées
+    if nl * nc ~= length(x) then
+        x = rgb2gray(x);
+    end
+    
     for i = 1:nl
         for j = 1:nc
            if x(i, j) > seuil
@@ -168,122 +215,35 @@ function seuillage(x)
     saveImage(x, "seuil.png");
 endfunction
 
-function passeBas(x)
+function passeHaut(x)
     [nl, nc] = size(x);
-    noyau = 3;
-    for i = 1:nl
-        for j = 1:nc
-            i_tmp = i;
-            j_tmp = j;
-            moy = 0;
-            if i <= (noyau - 1) / 2
-                i_start = 1;
-            else
-                i_start = i - ((noyau - 1) / 2);
-            end;
-            if i >= nl - ((noyau - 1) / 2)
-                i_end = nl;
-            else
-                i_end = i + ((noyau - 1) / 2);
-            end;
-            if j <= ((noyau - 1) / 2)
-                j_start = 1;
-            else
-                j_start = j - ((noyau - 1) / 2);
-            end;
-            if j >= nc - ((noyau - 1) / 2)
-                j_end = nc;
-            else
-                j_end = j + ((noyau - 1) / 2);
-            end;
-            //disp("i_start = " + string(i_start) + " j_start = " + string(j_start));
-            //disp("i_end = " + string(i_end) + " j_end = " + string(j_end));
-            for i_noy = i_start:i_end
-                for j_noy = j_start:j_end
-                    moy = moy + x(i_noy, j_noy);
-                end;
-            end;
-            i = i_tmp;
-            j = j_tmp;
-            moy = moy / 9;
-            x(i, j) = moy;    
-        end;
+    // Sert à mettre en niveau de gris les images colorées
+    if nl * nc ~= length(x) then
+        x = rgb2gray(x);
     end
+    
+    Gx = imfilter(x, [-1 0 1; -2 0 2; -1 0 1]);
+    Gy = imfilter(x, [1 2 1; 0 0 0; -1 -2 -1]);
+    g = Gx + Gy;
+
+    imshow(g);
+    saveImage(g, "passeHaut.png");
+endfunction
+
+function passeBas(x, rayonNoyau)
+    [nl, nc] = size(x);
+    // Sert à mettre en niveau de gris les images colorées
+    if nl * nc ~= length(x) then
+        x = rgb2gray(x);
+    end
+    
+    // Si diametreNoyau == 1, alors tailleNoyau = 3
+    tailleNoyau = 2 * rayonNoyau + 1;
+    moy = 1 / (tailleNoyau ^ 2);  // Si diametreNoyau == 1, alors moy = 1 / 9
+    noyau = moy * ones(tailleNoyau, tailleNoyau);  // Initialise le noyau de convolution
+    
+    x = imfilter(x, noyau);
+
     imshow(x);
     saveImage(x, "passeBas.png");
 endfunction
-
-function passeHaut(x)
-    [nl, nc] = size(x);
-    noyau = 3;
-    gradHoriz = [-1 0 1; -2 0 2; -1 0 1];
-    gradVerti = [-1 -1 -1; 0 0 0; 1 1 1];
-    gradHorizImage = x;
-    gradVertiImage = x;
-    gradFinal = x;
-    for i = 1:nl
-        for j = 1:nc
-            i_tmp = i;
-            j_tmp = j;
-            moy = 0;
-            if i <= (noyau - 1) / 2
-                i_start = 1;
-            else
-                i_start = i - ((noyau - 1) / 2);
-            end;
-            if i >= nl - ((noyau - 1) / 2)
-                i_end = nl;
-            else
-                i_end = i + ((noyau - 1) / 2);
-            end;
-            if j <= ((noyau - 1) / 2)
-                j_start = 1;
-            else
-                j_start = j - ((noyau - 1) / 2);
-            end;
-            if j >= nc - ((noyau - 1) / 2)
-                j_end = nc;
-            else
-                j_end = j + ((noyau - 1) / 2);
-            end;
-            
-            // Index pour les matrices
-            i_cur = 1;
-            j_cur = 1;
-            //disp("i = " + string(i) + " j = " + string(j));
-            for i_noy = i_start:i_end
-                for j_noy = j_start:j_end
-                    //disp("i = " + string(i_noy) + " j = " + string(j_noy));
-                    gradHorizImage(i_noy, j_noy) = x(i_noy, j_noy) * gradHoriz(i_cur, j_cur);
-                    gradVertiImage(i_noy, j_noy) = x(i_noy, j_noy) * gradVerti(i_cur, j_cur);
-                    //disp("ghi = " + string(gradHorizImage(i_noy, j_noy)) + " ghv = " + string(gradVertiImage(i_noy, j_noy)));
-                    if i_cur < noyau
-                        i_cur = i_cur + 1;
-                    else
-                        i_cur = 1
-                        j_cur = j_cur + 1
-                    end;
-                    //disp("type = " + string(typeof(gradHorizImage(i_noy, j_noy)^2 + (gradVertiImage(i_noy, j_noy)^2))));
-                    //disp("type2 = " + string(typeof(2 + 3)));
-                    valueTmp = sqrt(im2double((gradHorizImage(i_noy, j_noy)^2) + (gradVertiImage(i_noy, j_noy)^2)));
-                    //disp("avant conv = " + string(valueTmp));
-                    //disp(valueTmp);
-                    //im2uint8(valueTmp);
-                    valueTmp = im2uint8(valueTmp);
-                    //disp("après conv = " + string(valueTmp));
-                    gradFinal(i_noy, j_noy) = valueTmp;
-                    //if valueTmp >= 1
-                      //  gradFinal(i_noy, j_noy) = 255;
-                    //else
-                      //  gradFinal(i_noy, j_noy) = 0;
-                    //end;
-                end;
-            end;
-            i = i_tmp;
-            j = j_tmp;   
-        end;
-    end
-    imshow(gradFinal);
-    saveImage(gradFinal, "passeHaut.png");
-endfunction
-
