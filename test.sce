@@ -1,9 +1,8 @@
-clear;
 
+                      
 function x = loadImage() 
     myFile = uigetfile();
     x = imread(myFile);
-    imshow(x);
 endfunction
 
 function saveImage(x, nomFichier)
@@ -16,7 +15,7 @@ function hist = histogramme(x)
 
     for i = 1:nl
         for j = 1:nc
-            if x(i, j) == 255 then 
+            if x(i, j) == 255 then  
                 hist(256) = hist(256) + 1;
             else    
                 hist(x(i,j) + 1) = hist(x(i,j) + 1) + 1;
@@ -102,15 +101,12 @@ function luminance(x)
     saveImage(newX, "luminance.png");
 endfunction
 
+
 function contraste(x)
     [nl, nc] = size(x);
     x2 = x
     hist = histogramme(x);
     [maxi, mini] = dynamique(hist);
-    // Sert à mettre en niveau de gris les images colorées
-    if nl * nc ~= length(x) then
-        x = rgb2gray(x);
-    end
     
     for ng = 1 : 256
         lut(ng) = (255*(ng - mini))/(maxi - mini)
@@ -134,11 +130,6 @@ endfunction
 function negatif(x)
     [nl, nc] = size(x);
     newX = x;
-    // Sert à mettre en niveau de gris les images colorées
-    if nl * nc ~= length(x) then
-        x = rgb2gray(x);
-    end
-    
     for i = 1:nl
         for j = 1:nc
             newX(i, j) = 255 - newX(i, j)
@@ -153,10 +144,6 @@ function egalisationNB(x)
     newX = x; 
     hist = histogramme(x);
     histCumule = zeros([1:256]);
-    // Sert à mettre en niveau de gris les images colorées
-    if nl * nc ~= length(x) then
-        x = rgb2gray(x);
-    end
     
     for i = 1:256
         histCumule(i + 1) = histCumule(i) + hist(i);
@@ -197,11 +184,6 @@ endfunction
 function seuillage(x)
     [nl, nc] = size(x);
     seuil = 128;
-    // Sert à mettre en niveau de gris les images colorées
-    if nl * nc ~= length(x) then
-        x = rgb2gray(x);
-    end
-    
     for i = 1:nl
         for j = 1:nc
            if x(i, j) > seuil
