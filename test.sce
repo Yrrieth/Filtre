@@ -64,14 +64,14 @@ function luminance(x)
                 for k = 1:3
                     if lumi > 0 // On va vers 255
                         if newX(i, j, k) < 255 - lumi
-                            newX(i, j, k) = newX(i, j) + lumi;
+                            newX(i, j, k) = newX(i, j, k) + lumi;
                         
                         else
                             newX(i, j, k) = 255;
                         end;
                     else        // On va vers 0
                         if newX(i, j, k) > 0 - lumi
-                            newX(i, j, k) = newX(i, j) + lumi;
+                            newX(i, j, k) = newX(i, j, k) + lumi;
                         else
                             newX(i, j, k) = 0;
                        end;
@@ -152,7 +152,7 @@ function egalisationNB(x)
     for i = 1:nl
         for j = 1:nc
             if x(i,j) == 0
-                newX(i, j) = (histCumule() * 255) / length(x);
+                newX(i, j) = (histCumule(x(i, j) + 1) * 255) / length(x);
             else
                 newX(i, j) = (histCumule(x(i, j)) * 255) / length(x);
             end;
